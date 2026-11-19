@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>index.html — Кликер</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #7dd3fc;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 780px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 680px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+    }
+
+    .file-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .stats {
+      margin-bottom: 24px;
+    }
+
+    .score {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin: 0 0 6px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .click-area {
+      display: flex;
+      justify-content: center;
+      padding: 16px 0;
+    }
+
+    .file-btn {
+      width: 190px;
+      height: 190px;
+      border-radius: 20px;
+      border: 2px solid var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      transition: transform 0.08s ease, background 0.15s ease;
+    }
+
+    .file-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    .file-btn:active {
+      transform: scale(0.95);
+    }
+
+    .file-icon {
+      font-size: 44px;
+    }
+
+    .file-name {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--accent);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    .upgrades {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .upgrade {
+      width: 100%;
+      text-align: left;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.15s ease, opacity 0.15s ease;
+    }
+
+    .upgrade:hover:not(:disabled) {
+      border-color: var(--accent);
+    }
+
+    .upgrade:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .up-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .up-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .up-cost {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .reset-btn {
+      margin-top: 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover {
+      color: var(--text);
+      border-color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card">
+      <div class="file-header">
+        <span class="dot"></span>
+        <span>index.html</span>
+      </div>
+
+      <div class="stats">
+        <p class="score" id="score">0</p>
+        <p class="sub">
+          Клик: <strong id="perClick">1</strong> • В секунду: <strong id="perSec">0</strong>
+        </p>
+      </div>
+
+      <div class="click-area">
+        <button class="file-btn" id="clickBtn" type="button" aria-label="Кликнуть по index.html">
+          <span class="file-icon">📄</span>
+          <span class="file-name">index.html</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Улучшения кода</h2>
+      <div class="upgrades" id="upgrades"></div>
+      <button class="reset-btn" id="resetBtn" type="button">Сбросить прогресс</button>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "index_html_clicker_v1";
+
+    const defaultState = {
+      score: 0,
+      perClick: 1,
+      perSec: 0,
+      counts: {}
+    };
+
+    const upgradeDefs = [
+      {
+        id: "tag",
+        title: "Тег <button>",
+        desc: "+1 за клик",
+        baseCost: 15,
+        addClick: 1,
+        addSec: 0
+      },
+      {
+        id: "css",
+        title: "Стили <style>",
+        desc: "+2 в секунду",
+        baseCost: 50,
+        addClick: 0,
+        addSec: 2
+      },
+      {
+        id: "script",
+        title: "Скрипт <script>",
+        desc: "+5 за клик",
+        baseCost: 180,
+        addClick: 5,
+        addSec: 0
+      },
+      {
+        id: "server",
+        title: "Локальный сервер",
+        desc: "+15 в секунду",
+        baseCost: 600,
+        addClick: 0,
+        addSec: 15
+      }
+    ];
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        return {
+          score: Number(parsed.score) || 0,
+          perClick: Number(parsed.perClick) || 1,
+          perSec: Number(parsed.perSec) || 0,
+          counts: parsed.counts && typeof parsed.counts === "object" ? parsed.counts : {}
+        };
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    let state = loadState();
+
+    const scoreEl = document.getElementById("score");
+    const perClickEl = document.getElementById("perClick");
+    const perSecEl = document.getElementById("perSec");
+    const clickBtn = document.getElementById("clickBtn");
+    const upgradesEl = document.getElementById("upgrades");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function getCost(def) {
+      const owned = state.counts[def.id] || 0;
+      return Math.floor(def.baseCost * Math.pow(1.45, owned));
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function renderUpgrades() {
+      upgradesEl.innerHTML = "";
+      for (const def of upgradeDefs) {
+        const owned = state.counts[def.id] || 0;
+        const cost = getCost(def);
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "upgrade";
+        btn.disabled = state.score < cost;
+
+        btn.innerHTML = `
+          <div>
+            <div class="up-title">${def.title} (${owned})</div>
+            <div class="up-desc">${def.desc}</div>
+          </div>
+          <div class="up-cost">${cost}</div>
+        `;
+
+        btn.addEventListener("click", () => {
+          const currentCost = getCost(def);
+          if (state.score < currentCost) return;
+          state.score -= currentCost;
+          state.perClick += def.addClick;
+          state.perSec += def.addSec;
+          state.counts[def.id] = (state.counts[def.id] || 0) + 1;
+          saveState();
+          render();
+        });
+
+        upgradesEl.appendChild(btn);
+      }
+    }
+
+    function render() {
+      scoreEl.textContent = Math.floor(state.score).toLocaleString("ru-RU");
+      perClickEl.textContent = state.perClick.toLocaleString("ru-RU");
+      perSecEl.textContent = state.perSec.toLocaleString("ru-RU");
+      renderUpgrades();
+    }
+
+    clickBtn.addEventListener("click", () => {
+      state.score += state.perClick;
+      saveState();
+      render();
+    });
+
+    setInterval(() => {
+      if (state.perSec > 0) {
+        state.score += state.perSec;
+        saveState();
+        render();
+      }
+    }, 1000);
+
+    resetBtn.addEventListener("click", () => {
+      state = structuredClone(defaultState);
+      saveState();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
